@@ -69,38 +69,6 @@ public class Debut {
                         countUp = 0;
                     }
 
-                    // checkright();
-                    // if (j <= NCOLUMN - 4)
-                    // {    
-                    //     for (int r = 0; r < 4; r++) {
-                    //         if (grid[i][j + r] == player) {
-                    //             count++;
-                    //             if (count == 4) {
-                    //                 System.out.println("WINNER (right)");
-                    //                 // return;
-                    //             }
-                    //         }
-                    //         else {
-                    //             count = 0;
-                    //             break;
-                    //         }
-                    //     }
-                    // }
-                    // // checkdown();
-                    // if (i >= 3) {
-                    //     for (int r = 0; r < 4; r++) {
-                    //         if (grid[i - r][j] == player) {
-                    //             count++;
-                    //             if (count == 4) {
-                    //                 System.out.println("WINNER (down)");
-                    //                 // return;
-                    //             }
-                    //         } else {
-                    //             count = 0;
-                    //             break;
-                    //         }
-                    //     }
-                    // }
                     // checkdiagonalup();
                     if ((i <= NLINES - 4) && (j <= NCOLUMN - 4)) {
                         // System.out.println("Count au départ :" + count);
@@ -142,7 +110,34 @@ public class Debut {
         }
     }
 
+    static void menu() {
+        System.out.println("==========================");
+        System.out.println("Welcome to Connect 4 !");
+        System.out.println("==========================");
+        System.out.println("\n");
+
+        System.out.println("Menu :");
+        System.out.println("1. Mode 2 Players");
+        System.out.println("2. Mode against bot");
+        System.out.println("\n");
+
+        System.out.println("Enter the mode : ");
+
+        Scanner myObject = new Scanner(System.in);
+        int mode = myObject.nextInt(); // Read user input
+
+        if (mode == 1) {
+            return;
+        }
+        else {
+            System.out.println("\nMode not implemented yet...\n");
+            System.exit(0);
+        }
+    }
+
     public static void main(String[] args)  {
+
+        menu();
 
         // Grille
         int[][] grid = new int[NLINES][NCOLUMN];
