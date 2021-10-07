@@ -1,5 +1,6 @@
 import java.util.Scanner; // Import the Scanner class
-
+import java.util.Arrays;
+import java.util.Collections;
 
 public class Debut {
 
@@ -43,7 +44,6 @@ public class Debut {
         int count = 0;
         int countRight = 0;
         int countUp = 0;
-        player = (player % 2) + 1;
         // System.out.println("Player : " + player);
         for (int i = 0; i < grid[0].length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
@@ -135,6 +135,60 @@ public class Debut {
         }
     }
 
+    public static int[] getColumn(int[][] array, int index) {
+        int[] column = new int[array[0].length]; // Here I assume a rectangular 2D array!
+        for (int i = 0; i < column.length; i++) {
+            column[i] = array[i][index];
+        }
+        return column;
+    }
+
+    public static int[] getSmallColumn(int[] array, int start) {
+        int[] smallcolumn = new int[4]; // Here I assume a rectangular 2D array!
+        for (int i = start; i > start - 4; i--) {
+            smallcolumn[start - i] = array[i];
+        }
+        return smallcolumn;
+    }
+
+    public static int count (int[] array, int objective) {
+        int count = 0;
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == objective) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static int scoring(int[] array, int player) {
+        int score = 0;
+        if (count(array, player) == 4) {
+            score += 1000;
+        }
+        else if ((count(array, player) == 3) && (count(array, 0) == 1)) {
+            score += 5;
+        }
+        else if ((count(array, player) == 2) && (count(array, 0) == 2)) {
+            score += 5;
+        }
+        return score;
+    }
+
+    static void giveScore(int[][] grid, int player) {
+        // Colonne
+        int score = 0;
+        for (int r = 0; r < NCOLUMN; r++) {
+            int[] colonne = getColumn(grid, r);
+            for (int s = 3; s < NLINES; s++) {
+                int[] piece = getSmallColumn(colonne, s);
+                score += scoring(piece, player);
+            }
+        }
+
+        System.out.println("Score de " + player + " : " + score);
+    }
+
     public static void main(String[] args)  {
 
         menu();
@@ -143,6 +197,7 @@ public class Debut {
         int[][] grid = new int[NLINES][NCOLUMN];
         int[] position = new int[NLINES];
         int tour = 0;
+        int player = 1;
 
         for (int t = 0; t < position.length; t++) {
             position[t] = 0;
@@ -167,7 +222,10 @@ public class Debut {
             System.out.print("\n");
             System.out.print("\n");
 
-            checkWinner(grid, (tour % 2) + 1);
+            player = ((tour+1) % 2) + 1;
+            checkWinner(grid, player);
+
+            giveScore(grid, player);
         }
 
     }
