@@ -143,7 +143,20 @@ public class Debut {
         return column;
     }
 
-    public static int[] getSmallColumn(int[] array, int start) {
+    public static int[] getDiag(int[][] array, int lin, int col) {
+        int[] column = new int[array[0].length]; // Here I assume a rectangular 2D array!
+        for (int i = 0; i < Math.min(NCOLUMN, NLINES) - Math.max(lin, col); i++) {
+            column[i] = array[lin + i][col + i];
+        }
+        return column;
+    }
+
+    public static int[] getRow(int[][] array, int index) {
+        int[] column = array[index];
+        return column;
+    }
+
+    public static int[] getPiece(int[] array, int start) {
         int[] smallcolumn = new int[4]; // Here I assume a rectangular 2D array!
         for (int i = start; i > start - 4; i--) {
             smallcolumn[start - i] = array[i];
@@ -167,7 +180,7 @@ public class Debut {
             score += 1000;
         }
         else if ((count(array, player) == 3) && (count(array, 0) == 1)) {
-            score += 5;
+            score += 20;
         }
         else if ((count(array, player) == 2) && (count(array, 0) == 2)) {
             score += 5;
@@ -176,13 +189,33 @@ public class Debut {
     }
 
     static void giveScore(int[][] grid, int player) {
-        // Colonne
         int score = 0;
+        // Colonne    
         for (int r = 0; r < NCOLUMN; r++) {
             int[] colonne = getColumn(grid, r);
             for (int s = 3; s < NLINES; s++) {
-                int[] piece = getSmallColumn(colonne, s);
+                int[] piece = getPiece(colonne, s);
                 score += scoring(piece, player);
+            }
+        }
+
+        // Ligne
+        for (int l = 0; l < NLINES; l++) {
+            int[] line = getRow(grid, l);
+            for (int s = 3; s < NCOLUMN; s++) {  // Doute ici, sur le s=3
+                int[] piece = getPiece(line, s);
+                score += scoring(piece, player);
+            }
+        }
+
+        // Diagonale
+        for (int l = 0; l < NLINES - 3; l++) {
+            for (int r = 0; r < NCOLUMN - 3; r++) {
+                int[] diag = getDiag(grid, l, r);
+                for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+                    int[] piece = getPiece(diag, s);
+                    score += scoring(piece, player);
+                }
             }
         }
 
