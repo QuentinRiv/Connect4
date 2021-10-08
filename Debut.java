@@ -1,13 +1,15 @@
 import java.util.Scanner; // Import the Scanner class
 import java.util.Arrays;
 import java.util.Collections;
+// package com.journaldev.threads;
 
 public class Debut {
 
     static final int NLINES = 8;
     static final int NCOLUMN = 8;
+    static int[] position = new int[NLINES];
 
-    static void affichage(int[][] grid, int tour) {
+    static void affichage(int[][] grid) {
         for (int j = 0; j < grid[0].length; j++) {
             if (j == 0) {
                 System.out.print("| ");
@@ -63,6 +65,7 @@ public class Debut {
                     }
                     if ((countRight == 4) || (countUp == 4)) {
                         System.out.println("WINNER");
+                        System.exit(0);
                     }
                     else {
                         countRight = 0;
@@ -143,10 +146,18 @@ public class Debut {
         return column;
     }
 
-    public static int[] getDiag(int[][] array, int lin, int col) {
+    public static int[] getDiagUp(int[][] array, int lin, int col) {
         int[] column = new int[array[0].length]; // Here I assume a rectangular 2D array!
         for (int i = 0; i < Math.min(NCOLUMN, NLINES) - Math.max(lin, col); i++) {
             column[i] = array[lin + i][col + i];
+        }
+        return column;
+    }
+
+    public static int[] getDiagDown(int[][] array, int lin, int col) {
+        int[] column = new int[lin+1]; // Here I assume a rectangular 2D array!
+        for (int i = 0; i <= Math.abs(lin - col); i++) {
+            column[i] = array[lin - i][col + i];
         }
         return column;
     }
@@ -185,10 +196,16 @@ public class Debut {
         else if ((count(array, player) == 2) && (count(array, 0) == 2)) {
             score += 5;
         }
+        else if ((count(array, (player % 2 ) + 1) == 3) && (count(array, 0) == 1)) {
+            score -= 50;
+        }
+        else if (count(array, (player % 2) + 1) == 4) {
+            score -= 1000;
+        }
         return score;
     }
 
-    static void giveScore(int[][] grid, int player) {
+    static int giveScore(int[][] grid, int player) {
         int score = 0;
         // Colonne    
         for (int r = 0; r < NCOLUMN; r++) {
@@ -208,19 +225,92 @@ public class Debut {
             }
         }
 
-        // Diagonale
+        // Diagonale Supérieure
         for (int l = 0; l < NLINES - 3; l++) {
-            for (int r = 0; r < NCOLUMN - 3; r++) {
-                int[] diag = getDiag(grid, l, r);
-                for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
-                    int[] piece = getPiece(diag, s);
-                    score += scoring(piece, player);
-                }
+            int[] diag = getDiagUp(grid, l, 0);
+            for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+                int[] piece = getPiece(diag, s);
+                score += scoring(piece, player);
+            }
+        }
+        for (int r = 1; r < NCOLUMN - 3; r++) {
+            int[] diag = getDiagUp(grid, 0, r);
+            for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+                int[] piece = getPiece(diag, s);
+                score += scoring(piece, player);
             }
         }
 
-        System.out.println("Score de " + player + " : " + score);
+        // Diagonale Inférieure
+        for (int l = 3; l < NLINES; l++) {
+            int[] diag = getDiagDown(grid, l, 0);
+            for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+                int[] piece = getPiece(diag, s);
+                score += scoring(piece, player);
+            }
+        }
+        for (int r = 1; r < NCOLUMN - 3; r++) {
+            int[] diag = getDiagDown(grid, NLINES-1, r);
+            for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+                int[] piece = getPiece(diag, s);
+                score += scoring(piece, player);
+            }
+        }
+
+        // System.out.println("Score de " + player + " : " + score);
+        return score;
     }
+
+    static boolean is_terminal_node(int[][] grid, int turn) {
+        if (turn >= NLINES*NCOLUMN) {
+            return true;
+        }
+        if (giveScore(grid, 1) + giveScore(grid, 2)> 1000) {
+            return true;
+        }
+        return false;
+    }
+
+    static int minimax(int[][] grid, int depth, int player) {
+        if (depth == 0) {
+            // System.out.println("Minimax 0 : score = " + giveScore(grid, player));
+            // affichage(grid);
+            // System.out.println("");
+            return giveScore(grid, player);
+        }
+
+        int column = 0;
+
+        if (player == 2) {
+            int value = -10000;
+            for (int col = 0; col < NCOLUMN; col++) {
+                int[][] possible_grid = addCoin(grid, col, player);
+                int new_score = minimax(possible_grid, depth-1, player);
+                // System.out.println("Score pour colonne " + col + " : " + new_score);
+                if (new_score > value) {
+                    value = new_score;
+                    column = col;
+                }
+            }
+
+            System.out.println("Choice = " + column + " (score = " + value + ")");
+        }
+
+        return column;
+    }
+
+    static int[][] addCoin(int[][] grid, int choice, int tour) {
+        // System.out.println("Position : " + Arrays.toString(position));
+        int[][] newgrid = new int[grid.length][];
+        for (int i = 0; i < NLINES; i++) {
+            newgrid[i] = Arrays.copyOf(grid[i], grid[i].length);
+        }
+        // System.out.println("Choix : " + choice + " ; Position : " + position[choice]);
+        newgrid[position[choice]][choice] = ((tour+1) % 2) + 1;
+        return newgrid;
+    }
+
+
 
     public static void main(String[] args)  {
 
@@ -228,8 +318,8 @@ public class Debut {
 
         // Grille
         int[][] grid = new int[NLINES][NCOLUMN];
-        int[] position = new int[NLINES];
-        int tour = 0;
+        
+        int tour = 1;
         int player = 1;
 
         for (int t = 0; t < position.length; t++) {
@@ -237,28 +327,45 @@ public class Debut {
         }
 
         for (int n = 0; n < 55; n++) {
-            System.out.println("Joueur " + (tour % 2 + 1));
-
-            Scanner myObj = new Scanner(System.in);
-            int column = myObj.nextInt(); // Read user input
-
-            if (column > 10) {
+            
+            player = ((tour+1) % 2) + 1;
+            System.out.println("Joueur " + player);
+            int choice = 0;
+            if (player == 2) {
+                choice = minimax(grid, 1, player);
+                try {
+                    Thread.sleep(1500);
+                } catch (InterruptedException e) {
+                    System.out.println("got interrupted!");
+                }
+                
+            }
+            else {
+                Scanner myObj = new Scanner(System.in);
+                choice = myObj.nextInt(); // Read user input
+            }
+            if (choice > 10) {
                 return;
             }
+
+            grid = addCoin(grid, choice, tour);
+            position[choice]++;
     
-            grid[position[column]++][column] = (tour % 2) + 1;
+            
             tour++;
 
-            affichage(grid, tour);
+            affichage(grid);
     
             
             System.out.print("\n");
             System.out.print("\n");
 
-            player = ((tour+1) % 2) + 1;
+            
             checkWinner(grid, player);
 
             giveScore(grid, player);
+
+            is_terminal_node(grid, tour);
         }
 
     }
