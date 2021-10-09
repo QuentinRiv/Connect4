@@ -1,7 +1,7 @@
 import java.util.Scanner; // Import the Scanner class
 import java.util.Arrays;
 import java.util.Collections;
-// package com.journaldev.threads;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Debut {
 
@@ -80,8 +80,8 @@ public class Debut {
                                 count++;
                                 // System.out.println("Count : " + count);
                                 if (count == 4) {
-                                    System.out.println("WINNER (diagonal up, from " + i + j + ")");
-                                    // return;
+                                    System.out.println("WINNER");
+                                    System.exit(0);
                                 }
                             } else {
                                 count = 0;
@@ -95,8 +95,8 @@ public class Debut {
                             if (grid[i - r][j + r] == player) {
                                 count++;
                                 if (count == 4) {
-                                    System.out.println("WINNER (diagonal down)");
-                                    // return;
+                                    System.out.println("WINNER");
+                                    System.exit(0);
                                 }
                             } else {
                                 count = 0;
@@ -114,7 +114,7 @@ public class Debut {
     }
 
     static void menu() {
-        System.out.println("==========================");
+        System.out.println("\n\n\n\n==========================");
         System.out.println("Welcome to Connect 4 !");
         System.out.println("==========================");
         System.out.println("\n");
@@ -265,38 +265,59 @@ public class Debut {
         if (turn >= NLINES*NCOLUMN) {
             return true;
         }
-        if (giveScore(grid, 1) + giveScore(grid, 2)> 1000) {
+        if (Math.abs(giveScore(grid, 1)) + Math.abs(giveScore(grid, 2)) > 1000) {
             return true;
         }
         return false;
     }
 
-    static int minimax(int[][] grid, int depth, int player) {
-        if (depth == 0) {
+    static int[] minimax(int[][] grid, int depth, int player) {
+        if ((depth == 0) || (is_terminal_node(grid, 2))) {
             // System.out.println("Minimax 0 : score = " + giveScore(grid, player));
             // affichage(grid);
-            // System.out.println("");
-            return giveScore(grid, player);
+            // System.out.println("Player = " + player);
+            int[] result = {0, giveScore(grid, 2)};
+            return result;
         }
 
         int column = 0;
+        int value = 0;
 
+        // Maximize
         if (player == 2) {
-            int value = -10000;
+            value = -10000;
             for (int col = 0; col < NCOLUMN; col++) {
                 int[][] possible_grid = addCoin(grid, col, player);
-                int new_score = minimax(possible_grid, depth-1, player);
-                // System.out.println("Score pour colonne " + col + " : " + new_score);
-                if (new_score > value) {
-                    value = new_score;
+                // System.out.println("\n(" + depth + ") J2 : Place dans colonne " + col);
+                int[] new_score = minimax(possible_grid, depth-1, (player%2) + 1);
+                // System.out.println("(" + depth + ") J2 : Score pour colonne " + col + " : " + new_score[1]);
+                if (new_score[1] > value) {
+                    value = new_score[1];
                     column = col;
                 }
             }
 
-            System.out.println("Choice = " + column + " (score = " + value + ")");
+            // System.out.println("Choice = " + column + " (score = " + value + ")\n");
         }
 
-        return column;
+        // Minimize
+        if (player == 1) {
+            value = 10000;
+            for (int col = 0; col < NCOLUMN; col++) {
+                int[][] possible_grid = addCoin(grid, col, player);
+                int[] new_score = minimax(possible_grid, depth - 1, (player%2)+1);
+                // System.out.println("(" + depth + ") J1 : Score pour colonne " + col + " : " + new_score[1]);
+                if (new_score[1] < value) {
+                    value = new_score[1];
+                    column = col;
+                }
+            }
+
+            // System.out.println("Choice = " + column + " (score = " + value + ")");
+        }
+
+        int[] result = {column, value};
+        return result;
     }
 
     static int[][] addCoin(int[][] grid, int choice, int tour) {
@@ -306,7 +327,13 @@ public class Debut {
             newgrid[i] = Arrays.copyOf(grid[i], grid[i].length);
         }
         // System.out.println("Choix : " + choice + " ; Position : " + position[choice]);
-        newgrid[position[choice]][choice] = ((tour+1) % 2) + 1;
+        for (int j = 0; j < NLINES; j++) {
+            if (newgrid[j][choice] == 0) {
+                newgrid[j][choice] = ((tour + 1) % 2) + 1;;
+                break;
+            }
+        }
+        // newgrid[position[choice]][choice] = ((tour+1) % 2) + 1;
         return newgrid;
     }
 
@@ -314,7 +341,7 @@ public class Debut {
 
     public static void main(String[] args)  {
 
-        menu();
+        // menu();
 
         // Grille
         int[][] grid = new int[NLINES][NCOLUMN];
@@ -331,8 +358,10 @@ public class Debut {
             player = ((tour+1) % 2) + 1;
             System.out.println("Joueur " + player);
             int choice = 0;
+            choice = minimax(grid, 3, player)[0];
+            System.out.println("Choix : " + choice);
             if (player == 2) {
-                choice = minimax(grid, 1, player);
+                
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
