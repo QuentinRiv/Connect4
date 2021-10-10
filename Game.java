@@ -1,9 +1,8 @@
 import java.util.Scanner; // Import the Scanner class
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.concurrent.ThreadLocalRandom;
 
-public class Debut {
+
+public class Game {
 
     static final int NLINES = 8;
     static final int NCOLUMN = 8;
@@ -336,6 +335,7 @@ public class Debut {
         // newgrid[position[choice]][choice] = ((tour+1) % 2) + 1;
         return newgrid;
     }
+
 
 
 
