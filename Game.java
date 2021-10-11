@@ -6,7 +6,6 @@ public class Game {
 
     static final int NLINES = 8;
     static final int NCOLUMN = 8;
-    static int[] position = new int[NLINES];
 
     static void affichage(int[][] grid) {
         for (int j = 0; j < grid[0].length; j++) {
@@ -41,78 +40,8 @@ public class Game {
 
     }
 
-    static void checkWinner(int[][] grid, int player) {
-        int count = 0;
-        int countRight = 0;
-        int countUp = 0;
-        // System.out.println("Player : " + player);
-        for (int i = 0; i < grid[0].length; i++) {
-            for (int j = 0; j < grid[0].length; j++) {
-                if (grid[i][j] == player) {
-
-                    for (int r = 0; r < 4; r++) {
-                        if (j <= NCOLUMN - 4) {
-                            if (grid[i][j+r] == player) {
-                                countRight++;
-                            }
-                        }
-                        if (i >= 3) {
-                            if (grid[i-r][j] == player) {
-                                countUp++;
-                            }
-                        }
-                    }
-                    if ((countRight == 4) || (countUp == 4)) {
-                        System.out.println("WINNER");
-                        System.exit(0);
-                    }
-                    else {
-                        countRight = 0;
-                        countUp = 0;
-                    }
-
-                    // checkdiagonalup();
-                    if ((i <= NLINES - 4) && (j <= NCOLUMN - 4)) {
-                        // System.out.println("Count au départ :" + count);
-                        for (int r = 0; r < 4; r++) {
-                            if (grid[i+r][j+r] == player) {
-                                count++;
-                                // System.out.println("Count : " + count);
-                                if (count == 4) {
-                                    System.out.println("WINNER");
-                                    System.exit(0);
-                                }
-                            } else {
-                                count = 0;
-                                break;
-                            }
-                        }
-                    }
-                    // checkdiagonaldown();
-                    if ((i >= 3) && (j <= NCOLUMN - 4)) {
-                        for (int r = 0; r < 4; r++) {
-                            if (grid[i - r][j + r] == player) {
-                                count++;
-                                if (count == 4) {
-                                    System.out.println("WINNER");
-                                    System.exit(0);
-                                }
-                            } else {
-                                count = 0;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        if (count == 4) {
-            System.out.println("WINNER");
-        }
-    }
-
-    static void menu() {
+    
+    static int menu() {
         System.out.println("\n\n\n\n==========================");
         System.out.println("Welcome to Connect 4 !");
         System.out.println("==========================");
@@ -128,13 +57,7 @@ public class Game {
         Scanner myObject = new Scanner(System.in);
         int mode = myObject.nextInt(); // Read user input
 
-        if (mode == 1) {
-            return;
-        }
-        else {
-            System.out.println("\nMode not implemented yet...\n");
-            System.exit(0);
-        }
+        return mode;
     }
 
     public static int[] getColumn(int[][] array, int index) {
@@ -218,7 +141,7 @@ public class Game {
         // Ligne
         for (int l = 0; l < NLINES; l++) {
             int[] line = getRow(grid, l);
-            for (int s = 3; s < NCOLUMN; s++) {  // Doute ici, sur le s=3
+            for (int s = 3; s < NCOLUMN; s++) {
                 int[] piece = getPiece(line, s);
                 score += scoring(piece, player);
             }
@@ -227,14 +150,14 @@ public class Game {
         // Diagonale Supérieure
         for (int l = 0; l < NLINES - 3; l++) {
             int[] diag = getDiagUp(grid, l, 0);
-            for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+            for (int s = 3; s < diag.length; s++) {
                 int[] piece = getPiece(diag, s);
                 score += scoring(piece, player);
             }
         }
         for (int r = 1; r < NCOLUMN - 3; r++) {
             int[] diag = getDiagUp(grid, 0, r);
-            for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+            for (int s = 3; s < diag.length; s++) {
                 int[] piece = getPiece(diag, s);
                 score += scoring(piece, player);
             }
@@ -243,20 +166,19 @@ public class Game {
         // Diagonale Inférieure
         for (int l = 3; l < NLINES; l++) {
             int[] diag = getDiagDown(grid, l, 0);
-            for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+            for (int s = 3; s < diag.length; s++) {
                 int[] piece = getPiece(diag, s);
                 score += scoring(piece, player);
             }
         }
         for (int r = 1; r < NCOLUMN - 3; r++) {
             int[] diag = getDiagDown(grid, NLINES-1, r);
-            for (int s = 3; s < diag.length; s++) { // Doute ici, sur le s=3
+            for (int s = 3; s < diag.length; s++) {
                 int[] piece = getPiece(diag, s);
                 score += scoring(piece, player);
             }
         }
 
-        // System.out.println("Score de " + player + " : " + score);
         return score;
     }
 
@@ -272,9 +194,6 @@ public class Game {
 
     static int[] minimax(int[][] grid, int depth, int player) {
         if ((depth == 0) || (is_terminal_node(grid, 2))) {
-            // System.out.println("Minimax 0 : score = " + giveScore(grid, player));
-            // affichage(grid);
-            // System.out.println("Player = " + player);
             int[] result = {0, giveScore(grid, 2)};
             return result;
         }
@@ -287,16 +206,12 @@ public class Game {
             value = -10000;
             for (int col = 0; col < NCOLUMN; col++) {
                 int[][] possible_grid = addCoin(grid, col, player);
-                // System.out.println("\n(" + depth + ") J2 : Place dans colonne " + col);
                 int[] new_score = minimax(possible_grid, depth-1, (player%2) + 1);
-                // System.out.println("(" + depth + ") J2 : Score pour colonne " + col + " : " + new_score[1]);
                 if (new_score[1] > value) {
                     value = new_score[1];
                     column = col;
                 }
             }
-
-            // System.out.println("Choice = " + column + " (score = " + value + ")\n");
         }
 
         // Minimize
@@ -305,14 +220,11 @@ public class Game {
             for (int col = 0; col < NCOLUMN; col++) {
                 int[][] possible_grid = addCoin(grid, col, player);
                 int[] new_score = minimax(possible_grid, depth - 1, (player%2)+1);
-                // System.out.println("(" + depth + ") J1 : Score pour colonne " + col + " : " + new_score[1]);
                 if (new_score[1] < value) {
                     value = new_score[1];
                     column = col;
                 }
             }
-
-            // System.out.println("Choice = " + column + " (score = " + value + ")");
         }
 
         int[] result = {column, value};
@@ -320,7 +232,6 @@ public class Game {
     }
 
     static int[][] addCoin(int[][] grid, int choice, int tour) {
-        // System.out.println("Position : " + Arrays.toString(position));
         int[][] newgrid = new int[grid.length][];
         for (int i = 0; i < NLINES; i++) {
             newgrid[i] = Arrays.copyOf(grid[i], grid[i].length);
@@ -332,7 +243,6 @@ public class Game {
                 break;
             }
         }
-        // newgrid[position[choice]][choice] = ((tour+1) % 2) + 1;
         return newgrid;
     }
 
@@ -341,7 +251,7 @@ public class Game {
 
     public static void main(String[] args)  {
 
-        // menu();
+        int mode = menu();
 
         // Grille
         int[][] grid = new int[NLINES][NCOLUMN];
@@ -349,52 +259,45 @@ public class Game {
         int tour = 1;
         int player = 1;
 
-        for (int t = 0; t < position.length; t++) {
-            position[t] = 0;
-        }
 
-        for (int n = 0; n < 55; n++) {
+        for (int n = 0; n < 50; n++) {
             
             player = ((tour+1) % 2) + 1;
             System.out.println("Joueur " + player);
+
             int choice = 0;
-            choice = minimax(grid, 3, player)[0];
-            System.out.println("Choix : " + choice);
-            if (player == 2) {
-                
+            
+            if ((player == 2) && (mode == 2)){
+                choice = minimax(grid, 3, player)[0];
+                System.out.println("Choix : " + choice);
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
                     System.out.println("got interrupted!");
                 }
-                
             }
             else {
                 Scanner myObj = new Scanner(System.in);
                 choice = myObj.nextInt(); // Read user input
             }
+
             if (choice > 10) {
                 return;
             }
 
-            grid = addCoin(grid, choice, tour);
-            position[choice]++;
+            grid = addCoin(grid, choice, tour++);
     
-            
-            tour++;
-
             affichage(grid);
     
             
             System.out.print("\n");
-            System.out.print("\n");
-
-            
-            checkWinner(grid, player);
 
             giveScore(grid, player);
 
-            is_terminal_node(grid, tour);
+            if (is_terminal_node(grid, tour)) {
+                System.out.print("\nWINNER !");
+                System.exit(0);
+            }
         }
 
     }
