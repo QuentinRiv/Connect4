@@ -38,6 +38,8 @@ public class Game {
             System.out.print("‾‾‾‾");
         }
 
+        System.out.print("\n");
+
     }
 
     
@@ -257,7 +259,7 @@ public class Game {
         int[][] grid = new int[NLINES][NCOLUMN];
         
         int tour = 1;
-        int player = 1;
+        int player;
 
 
         for (int n = 0; n < 50; n++) {
@@ -269,7 +271,7 @@ public class Game {
             
             if ((player == 2) && (mode == 2)){
                 choice = minimax(grid, 3, player)[0];
-                System.out.println("Choix : " + choice);
+                System.out.println("-> Choix : " + choice);
                 try {
                     Thread.sleep(1500);
                 } catch (InterruptedException e) {
@@ -278,22 +280,22 @@ public class Game {
             }
             else {
                 Scanner myObj = new Scanner(System.in);
-                choice = myObj.nextInt(); // Read user input
+                try {
+                    choice = myObj.nextInt(); // Read user input
+                } catch (java.util.InputMismatchException e) {
+                    System.out.println("\nGame interrupted !");
+                    System.exit(0);
+                }
             }
 
-            if (choice > 10) {
-                return;
-            }
 
+            // Add a Piece, and obtain a new grid
             grid = addCoin(grid, choice, tour++);
     
+            // Show the grid
             affichage(grid);
     
-            
-            System.out.print("\n");
-
-            giveScore(grid, player);
-
+            // Check is the game is finished
             if (is_terminal_node(grid, tour)) {
                 System.out.print("\nWINNER !");
                 System.exit(0);
