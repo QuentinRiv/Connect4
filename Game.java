@@ -4,9 +4,11 @@ import java.util.Arrays;
 
 public class Game {
 
+    // Global constant variable
     static final int NLINES = 8;
     static final int NCOLUMN = 8;
 
+    // Show the grid, with the pieces inside
     static void affichage(int[][] grid) {
         for (int j = 0; j < grid[0].length; j++) {
             if (j == 0) {
@@ -42,7 +44,7 @@ public class Game {
 
     }
 
-    
+    // Starting menu
     static int menu() {
         System.out.println("\n\n\n\n==========================");
         System.out.println("Welcome to Connect 4 !");
@@ -62,6 +64,7 @@ public class Game {
         return mode;
     }
 
+    // Select a column from the grid
     public static int[] getColumn(int[][] array, int index) {
         int[] column = new int[array[0].length]; // Here I assume a rectangular 2D array!
         for (int i = 0; i < column.length; i++) {
@@ -70,6 +73,7 @@ public class Game {
         return column;
     }
 
+    // Select a diagonal from the grid
     public static int[] getDiagUp(int[][] array, int lin, int col) {
         int[] column = new int[array[0].length]; // Here I assume a rectangular 2D array!
         for (int i = 0; i < Math.min(NCOLUMN, NLINES) - Math.max(lin, col); i++) {
@@ -78,6 +82,7 @@ public class Game {
         return column;
     }
 
+    // Select a diagonal from the grid
     public static int[] getDiagDown(int[][] array, int lin, int col) {
         int[] column = new int[lin+1]; // Here I assume a rectangular 2D array!
         for (int i = 0; i <= Math.abs(lin - col); i++) {
@@ -86,11 +91,13 @@ public class Game {
         return column;
     }
 
+    // Select a row from the grid
     public static int[] getRow(int[][] array, int index) {
         int[] column = array[index];
         return column;
     }
 
+    // Get four elements for a column / row / diagonal
     public static int[] getPiece(int[] array, int start) {
         int[] smallcolumn = new int[4]; // Here I assume a rectangular 2D array!
         for (int i = start; i > start - 4; i--) {
@@ -99,6 +106,7 @@ public class Game {
         return smallcolumn;
     }
 
+    // Count the number of occurence of a given element in an array
     public static int count (int[] array, int objective) {
         int count = 0;
         for (int i = 0; i < array.length; i++) {
@@ -109,6 +117,7 @@ public class Game {
         return count;
     }
 
+    // Compute a score for a player, given a set of 4 pieces
     public static int scoring(int[] array, int player) {
         int score = 0;
         if (count(array, player) == 4) {
@@ -129,6 +138,7 @@ public class Game {
         return score;
     }
 
+    // Give a score for a player, given a grid
     static int giveScore(int[][] grid, int player) {
         int score = 0;
         // Colonne    
@@ -184,6 +194,7 @@ public class Game {
         return score;
     }
 
+    // Test to see if the game is over (either a player wins or ex-aequo)
     static boolean is_terminal_node(int[][] grid, int turn) {
         if (turn >= NLINES*NCOLUMN) {
             return true;
@@ -233,12 +244,13 @@ public class Game {
         return result;
     }
 
+    // Add a piece in the grid
     static int[][] addCoin(int[][] grid, int choice, int tour) {
         int[][] newgrid = new int[grid.length][];
         for (int i = 0; i < NLINES; i++) {
             newgrid[i] = Arrays.copyOf(grid[i], grid[i].length);
         }
-        // System.out.println("Choix : " + choice + " ; Position : " + position[choice]);
+
         for (int j = 0; j < NLINES; j++) {
             if (newgrid[j][choice] == 0) {
                 newgrid[j][choice] = ((tour + 1) % 2) + 1;;
@@ -250,7 +262,7 @@ public class Game {
 
 
 
-
+    // Main function
     public static void main(String[] args)  {
 
         int mode = menu();
